@@ -12,177 +12,61 @@ import { findCurriculo, loadCurriculos, saveCurriculos } from "../data";
 import { Button } from "../../../../componentes/ui/button";
 
 export default function CurriculoDetalhesPage() {
-  const [curriculo, setCurriculo] = useState(() => null as null | ReturnType<typeof findCurriculo>);
-  const [isLoading, setIsLoading] = useState(true);
-  const params = useParams();
+  const [selected, setSelected] = useState(() => null as null | ReturnType<typeof findCurriculo>);
+  const [loading, setLoading] = useState(true);
+  const routeParams = useParams();
   const router = useRouter();
-  const curriculoId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id = Array.isArray(routeParams.id) ? routeParams.id[0] : routeParams.id;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!curriculoId) {
-        setCurriculo(null);
-        setIsLoading(false);
+    const task = setTimeout(() => {
+      if (!id) {
+        setSelected(null);
+        setLoading(false);
         return;
       }
-
-      const foundCurriculo = findCurriculo(curriculoId) ?? null;
-      setCurriculo(foundCurriculo);
-      setIsLoading(false);
+      setSelected(findCurriculo(id) ?? null);
+      setLoading(false);
     }, 0);
-
-    return () => clearTimeout(timer);
-  }, [curriculoId]);
+    return () => clearTimeout(task);
+  }, [id]);
 
   const handleDelete = () => {
-    if (!curriculo) return;
-    const current = loadCurriculos().filter((item) => item.id !== curriculo.id);
-    saveCurriculos(current);
+    if (!selected) return;
+    saveCurriculos(loadCurriculos().filter((item) => item.id !== selected.id));
     toast.success("Curriculo excluido com sucesso.");
     router.push("/sistema/paginas/curriculos");
   };
 
   return (
-    <div className="site-shell">
-      <Header />
+    <div className="site-shell"><Header /><div className="main-pane"><main className="page-wrap">
+      <section className="grid gap-4">
+        <div className="flex flex-wrap gap-3">
+          <Link href="/sistema/paginas/curriculos" className="rounded-md border border-teal-300 text-teal-900 px-4 py-3 text-sm font-semibold">Voltar para a lista</Link>
+          <Button type="button" variant="danger" onClick={handleDelete}><FiTrash2 /> Excluir curriculo</Button>
+        </div>
 
-      <div className="main-pane">
-        <main className="page-wrap">
-          <section className="page-shell">
-            <div className="detail-actions">
-              <Link href="/sistema/paginas/curriculos" className="btn-secondary">
-                Voltar para a lista
-              </Link>
-              <Button type="button" variant="danger" onClick={handleDelete}>
-                <FiTrash2 />
-                Excluir curriculo
-              </Button>
-            </div>
-
-            {isLoading ? (
-              <div className="surface-card empty-state mt-4">Carregando curriculo...</div>
-            ) : curriculo ? (
-              <div className="stack-list mt-4">
-                <section className="detail-hero">
-                  <article className="surface-card detail-person">
-                    <span className="eyebrow">Perfil principal</span>
-                    <div className="detail-person-main">
-                      <div className="avatar-frame">
-                        <Image src={curriculo.avatar} alt={curriculo.nome} fill className="object-cover" />
-                      </div>
-                      <div>
-                        <span className="eyebrow">{curriculo.cargo}</span>
-                        <h2>{curriculo.nome}</h2>
-                        <div className="chip-row mt-3">
-                          <span className="chip">
-                            <FiMail />
-                            {curriculo.email}
-                          </span>
-                          <span className="chip">
-                            <FiBriefcase />
-                            {curriculo.cargo}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-
-                  <article className="surface-card detail-id-card">
-                    <div>
-                      <span className="eyebrow">Registro</span>
-                      <h3 className="m-0 mt-3 text-2xl font-semibold">ID do perfil</h3>
-                    </div>
-                    <span className="status-chip">{curriculo.id}</span>
-                  </article>
-                </section>
-
-                <section className="summary-shell">
-                  <article className="surface-card">
-                    <span className="eyebrow">Contato</span>
-                    <div className="stack-list mt-4">
-                      <div className="array-card">
-                        <strong className="flex items-center gap-2">
-                          <FiPhone />
-                          Telefone
-                        </strong>
-                        <p className="body-copy m-0 mt-2">{curriculo.telefone}</p>
-                      </div>
-                      <div className="array-card">
-                        <strong>CPF</strong>
-                        <p className="body-copy m-0 mt-2">{curriculo.cpf}</p>
-                      </div>
-                    </div>
-                  </article>
-
-                  <article className="surface-card">
-                    <span className="eyebrow">Resumo profissional</span>
-                    <p className="body-copy mt-4">{curriculo.resumo}</p>
-                  </article>
-                </section>
-
-                <section className="details-grid">
-                  <article className="surface-card">
-                    <div className="panel-head">
-                      <div>
-                        <span className="eyebrow">Historico</span>
-                        <h3 className="m-0 mt-2 text-xl font-semibold">Experiencias profissionais</h3>
-                      </div>
-                    </div>
-                    <div className="stack-list mt-5">
-                      {curriculo.experiencias.map((item, index) => (
-                        <div key={index} className="array-card">
-                          <strong>{item.empresa}</strong>
-                          <p className="body-copy m-0 mt-2">
-                            {item.cargo} | {item.periodo}
-                          </p>
-                          <p className="body-copy m-0 mt-3">{item.descricao}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-
-                  <article className="surface-card">
-                    <div className="panel-head">
-                      <div>
-                        <span className="eyebrow">Academico</span>
-                        <h3 className="m-0 mt-2 text-xl font-semibold">Formacao academica</h3>
-                      </div>
-                    </div>
-                    <div className="stack-list mt-5">
-                      {curriculo.formacoes.map((item, index) => (
-                        <div key={index} className="array-card">
-                          <strong>{item.instituicao}</strong>
-                          <p className="body-copy m-0 mt-2">{item.curso}</p>
-                          <p className="body-copy m-0 mt-3">{item.periodo}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                </section>
-
-                <section className="surface-card">
-                  <div className="panel-head">
-                    <div>
-                      <span className="eyebrow">Competencias</span>
-                      <h3 className="m-0 mt-2 text-xl font-semibold">Habilidades</h3>
-                    </div>
-                  </div>
-                  <div className="skill-row mt-4">
-                    {curriculo.habilidades.map((skill) => (
-                      <span key={skill} className="skill-chip">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </section>
+        {loading ? (
+          <div className="rounded-2xl border border-teal-200 bg-white p-8 text-center text-sm text-slate-600">Carregando curriculo...</div>
+        ) : selected ? (
+          <>
+            <section className="grid gap-4 lg:grid-cols-[auto_1fr] rounded-3xl border border-teal-200 bg-white p-5">
+              <div className="relative h-28 w-28 overflow-hidden rounded-3xl border border-teal-200 bg-slate-100"><Image src={selected.avatar} alt={selected.nome} fill className="object-cover" /></div>
+              <div>
+                <span className="inline-flex rounded-full px-3 py-1 text-xs font-bold bg-teal-100 text-teal-900">{selected.cargo}</span>
+                <h1 className="mt-4 text-3xl font-black text-slate-900">{selected.nome}</h1>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-teal-200 px-3 py-1 text-xs font-semibold text-slate-700"><FiMail /> {selected.email}</span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-teal-200 px-3 py-1 text-xs font-semibold text-slate-700"><FiBriefcase /> {selected.cargo}</span>
+                </div>
               </div>
-            ) : (
-              <div className="surface-card empty-state mt-4">Curriculo nao encontrado. Verifique se o ID esta correto.</div>
-            )}
-          </section>
-        </main>
-        <Footer />
-      </div>
-    </div>
+            </section>
+            <div className="grid gap-4"><article className="rounded-2xl border border-teal-200 bg-white p-4"><h3 className="text-lg font-bold text-slate-900">Resumo profissional</h3><p className="mt-3 text-sm leading-7 text-slate-600">{selected.resumo}</p></article></div><div className="grid gap-4 md:grid-cols-2"><article className="rounded-2xl bg-teal-50 p-4"><h3 className="text-lg font-bold text-slate-900">Contato</h3><div className="mt-4 grid gap-3 text-sm text-slate-700"><p className="flex items-center gap-2"><FiMail /> {selected.email}</p><p className="flex items-center gap-2"><FiPhone /> {selected.telefone}</p><p><strong>CPF:</strong> {selected.cpf}</p></div></article><article className="rounded-2xl bg-teal-50 p-4"><h3 className="text-lg font-bold text-slate-900">Habilidades</h3><div className="mt-4 flex flex-wrap gap-2">{selected.habilidades.map((skill) => (<span key={skill} className="rounded-full border border-teal-200 px-3 py-1 text-xs font-semibold text-slate-700">{skill}</span>))}</div></article></div><div className="grid gap-4 xl:grid-cols-2"><article className="rounded-2xl border border-teal-200 bg-white p-4"><h3 className="text-lg font-bold text-slate-900">Formacao</h3><div className="mt-4 grid gap-3">{selected.formacoes.map((item, index) => (<div key={index} className="rounded-xl border border-teal-200 p-3"><strong>{item.instituicao}</strong><p className="mt-1 text-sm text-slate-600">{item.curso}</p><p className="mt-2 text-sm text-slate-600">{item.periodo}</p></div>))}</div></article><article className="rounded-2xl border border-teal-200 bg-white p-4"><h3 className="text-lg font-bold text-slate-900">Experiencias</h3><div className="mt-4 grid gap-3">{selected.experiencias.map((item, index) => (<div key={index} className="rounded-xl border border-teal-200 p-3"><strong>{item.empresa}</strong><p className="mt-1 text-sm text-slate-600">{item.cargo} | {item.periodo}</p><p className="mt-2 text-sm leading-6 text-slate-600">{item.descricao}</p></div>))}</div></article></div>
+          </>
+        ) : (
+          <div className="rounded-2xl border border-teal-200 bg-white p-8 text-center text-sm text-slate-600">Curriculo nao encontrado. Verifique se o ID esta correto.</div>
+        )}
+      </section>
+    </main><Footer /></div></div>
   );
 }

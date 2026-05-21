@@ -13,19 +13,12 @@ export default function Header() {
               <strong>Curriculos</strong>
             </span>
           </Link>
-
           <div className="header-note">
-            <strong>Gestão de currículos</strong>
-            <p>Organize perfis de candidatos e acompanhe informações profissionais com clareza.</p>
+            <strong>Layout em trilho lateral.</strong>
+            <p>A pagina muda bastante a ordem dos blocos.</p>
           </div>
         </div>
-
         <Nav />
-
-        <div className="header-footer">
-          <span>Busca em tempo real</span>
-          <span>Formulários claros e validados</span>
-        </div>
       </div>
     </header>
   );

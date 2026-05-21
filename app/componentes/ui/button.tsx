@@ -1,17 +1,23 @@
 import type { ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "secondary" | "danger";
+type VariantL = "primary" | "secondary" | "danger";
 
-function getVariantClassName(variant: Variant) {
-  if (variant === "secondary") return "btn-secondary";
-  if (variant === "danger") return "btn-danger";
-  return "btn-primary";
-}
-
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: Variant;
+const classesL: Record<VariantL, string> = {
+  primary: "btn-primary",
+  secondary: "btn-secondary",
+  danger: "btn-danger",
 };
 
-export function Button({ className = "", variant = "primary", ...props }: ButtonProps) {
-  return <button className={`${getVariantClassName(variant)} ${className}`.trim()} {...props} />;
+type PropsL = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: VariantL;
+};
+
+function weaveL(variant: VariantL, customClass: string) {
+  const partsL = [classesL[variant]];
+  if (customClass) partsL.push(customClass);
+  return partsL.join(" ").trim();
+}
+
+export function Button({ className = "", variant = "primary", ...props }: PropsL) {
+  return <button data-ui="button-12" className={weaveL(variant, className)} {...props} />;
 }

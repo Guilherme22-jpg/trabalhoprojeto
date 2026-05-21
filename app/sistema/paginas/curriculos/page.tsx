@@ -2,141 +2,55 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { FiArrowRight, FiSearch } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import Header from "../../../componentes/header";
 import Footer from "../../../componentes/footer";
 import { Curriculo, loadCurriculos } from "./data";
 
 export default function CurriculosPage() {
-  const [curriculos] = useState<Curriculo[]>(() => loadCurriculos());
-  const [query, setQuery] = useState("");
-  const [search, setSearch] = useState("");
+  const [storedRecords] = useState<Curriculo[]>(() => loadCurriculos());
+  const [typedSearch, setTypedSearch] = useState("");
+  const [committedSearch, setCommittedSearch] = useState("");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setSearch(query.trim().toLowerCase());
+    const waitSearch = setTimeout(() => {
+      setCommittedSearch(typedSearch.trim().toLowerCase());
     }, 200);
 
-    return () => clearTimeout(timer);
-  }, [query]);
+    return () => clearTimeout(waitSearch);
+  }, [typedSearch]);
 
-  const filteredCurriculos = useMemo(
-    () =>
-      curriculos.filter((item) => {
-        const term = search;
-        if (!term) return true;
-        return item.nome.toLowerCase().includes(term) || item.cargo.toLowerCase().includes(term);
-      }),
-    [curriculos, search],
-  );
+  const matchingItems = useMemo(() => {
+    if (!committedSearch) return storedRecords;
+    return storedRecords.filter((profile) => profile.nome.toLowerCase().includes(committedSearch) || profile.cargo.toLowerCase().includes(committedSearch));
+  }, [storedRecords, committedSearch]);
 
   return (
-    <div className="site-shell">
-      <Header />
-
-      <div className="main-pane">
-        <main className="page-wrap">
-          <section className="page-shell">
-            <div className="toolbar-shell">
-              <div className="toolbar-banner">
-                <div className="search-card">
-                  <span className="eyebrow">Lista de curriculos</span>
-                  <h1 className="section-title">Gerencie os currículos cadastrados</h1>
-                  <p className="section-copy mt-4 text-sm sm:text-base">
-                    Filtre perfis por nome ou cargo e acesse detalhes de maneira rápida e direta.
-                  </p>
-                </div>
-
-                <div className="search-card">
-                  <label className="search-shell">
-                    <FiSearch className="h-4 w-4" />
-                    <input
-                      value={query}
-                      onChange={(event) => setQuery(event.target.value)}
-                      placeholder="Buscar por nome ou cargo"
-                      className="input-shell pl-11"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              <div className="action-card">
-                <span className="eyebrow">Acesso rapido</span>
-                <p className="body-copy mt-4">
-                  Use este painel para cadastrar um novo currículo ou navegar pelos perfis existentes.
-                </p>
-                <div className="toolbar-actions mt-6">
-                  <Link href="/sistema/paginas/curriculos/novo" className="btn-primary">
-                    Novo curriculo
-                    <FiArrowRight />
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="stats-grid mt-4">
-              <article className="metric-card">
-                <span className="eyebrow">Registros visiveis</span>
-                <div className="hero-stat-value">{filteredCurriculos.length}</div>
-              </article>
-              <article className="metric-card">
-                <span className="eyebrow">Persistencia</span>
-                <div className="hero-stat-value text-xl">LocalStorage</div>
-              </article>
-              <article className="metric-card">
-                <span className="eyebrow">Filtro</span>
-                <div className="hero-stat-value text-xl">Nome e cargo</div>
-              </article>
-            </div>
-
-            <div className="record-grid mt-4">
-              <section className="stack-list">
-                {filteredCurriculos.slice(0, Math.ceil(filteredCurriculos.length / 2)).map((item) => (
-                  <article key={item.id} className="record-card">
-                    <div className="record-head">
-                      <div className="chip-row">
-                        <span className="chip">{item.cargo}</span>
-                      </div>
-                      <Link href={`/sistema/paginas/curriculos/${item.id}`} className="ghost-link">
-                        Abrir perfil
-                        <FiArrowRight />
-                      </Link>
-                    </div>
-
-                    <h2 className="m-0 mt-4 text-2xl font-semibold">{item.nome}</h2>
-                    <p className="body-copy m-0 mt-3 text-sm">{item.resumo}</p>
-                  </article>
-                ))}
-              </section>
-
-              <section className="stack-list">
-                {filteredCurriculos.length === 0 ? (
-                  <div className="surface-card empty-state">Nenhum curriculo encontrado. Tente outro termo de pesquisa.</div>
-                ) : (
-                  filteredCurriculos.slice(Math.ceil(filteredCurriculos.length / 2)).map((item) => (
-                    <article key={item.id} className="record-card">
-                      <div className="record-head">
-                        <div className="chip-row">
-                          <span className="chip">{item.email}</span>
-                        </div>
-                        <Link href={`/sistema/paginas/curriculos/${item.id}`} className="ghost-link">
-                          Ver detalhes
-                          <FiArrowRight />
-                        </Link>
-                      </div>
-
-                      <h2 className="m-0 mt-4 text-2xl font-semibold">{item.nome}</h2>
-                      <p className="body-copy m-0 mt-2 font-medium">{item.cargo}</p>
-                      <p className="body-copy m-0 mt-3 text-sm">{item.resumo}</p>
-                    </article>
-                  ))
-                )}
-              </section>
-            </div>
-          </section>
-        </main>
-        <Footer />
-      </div>
-    </div>
+    <div className="site-shell"><Header /><div className="main-pane"><main className="page-wrap">
+      <section className="grid gap-4">
+        <div className="grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-teal-200 bg-white p-4 sm:col-span-2"><h1 className="text-3xl font-black text-slate-900">FlowGrid quadros</h1><p className="mt-3 text-sm text-slate-600">Area de consulta e pesquisa dos currículos cadastrados.</p></div><div className="rounded-2xl bg-teal-50 p-4"><Link href="/sistema/paginas/curriculos/novo" className="rounded-md px-4 py-3 text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">Adicionar</Link></div></div>
+        <div className="rounded-2xl border border-teal-200 bg-white p-4">
+          <label className="relative block">
+            <FiSearch className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input value={typedSearch} onChange={(event) => setTypedSearch(event.target.value)} placeholder="Buscar por nome ou cargo" className="input-shell pl-11" />
+          </label>
+        </div>
+        {matchingItems.length === 0 ? (
+          <div className="rounded-2xl border border-teal-200 bg-white p-8 text-center text-sm text-slate-600">Nenhum curriculo encontrado. Tente outro termo de pesquisa.</div>
+        ) : (
+          <div className="grid gap-3 xl:grid-cols-2">
+            {matchingItems.map((profile) => (
+      <article key={profile.id} className="rounded-2xl border border-teal-200 bg-white p-4">
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div><h2 className="text-xl font-bold text-slate-900">{profile.nome}</h2><p className="mt-1 text-sm text-slate-600">{profile.cargo}</p></div>
+          <Link href={`/sistema/paginas/curriculos/${profile.id}`} className="rounded-md border px-3 py-2 text-sm font-semibold border-teal-300 text-teal-900">Ficha</Link>
+        </div>
+        <p className="mt-3 text-sm leading-7 text-slate-600">{profile.resumo}</p>
+      </article>
+    ))}
+          </div>
+        )}
+      </section>
+    </main><Footer /></div></div>
   );
 }

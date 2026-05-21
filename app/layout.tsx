@@ -8,7 +8,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   title: "FlowGrid Curriculos",
-  description: "Sistema de cadastro e gestão de currículos com interface clara e eficiente.",
+  description: "Sistema academico de curriculos com identidade rail.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
